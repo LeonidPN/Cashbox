@@ -12,9 +12,18 @@ public class MainPresenter {
         this.view=view;
     }
 
-    public void openView(Class c){
+    public void openView(Class c, boolean isPayBack){
         Intent intent = new Intent(view, c);
+        intent.putExtra("IS_PAY_BACK", isPayBack);
         view.startActivity(intent);
+    }
+
+    public  void openShift(){
+
+    }
+
+    public  void closeShift(){
+
     }
 
 }

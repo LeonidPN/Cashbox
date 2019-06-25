@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
+                presenter.closeShift();
             }
         });
         buttonOpenShift=(Button)findViewById(R.id.buttonOpenShift);
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
+                presenter.openShift();
             }
         });
         buttonPay=(Button)findViewById(R.id.buttonPay);
@@ -46,15 +46,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                presenter.openView(PaymentActivity.class);
+                presenter.openView(PaymentActivity.class, false);
             }
         });
         buttonPayBack=(Button)findViewById(R.id.buttonPayBack);
         buttonPayBack.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
-                presenter.openView(PaymentActivity.class);
+                presenter.openView(PaymentActivity.class, true);
             }
         });
     }
