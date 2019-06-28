@@ -1,11 +1,10 @@
 package com.example.cashbox.Views;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cashbox.Presenters.MainPresenter;
 import com.example.cashbox.R;
@@ -24,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         presenter=new MainPresenter(this);
+        presenter.initialize();
 
         buttonCloseShift=(Button)findViewById(R.id.buttonCloseShift);
         buttonCloseShift.setOnClickListener(new View.OnClickListener(){

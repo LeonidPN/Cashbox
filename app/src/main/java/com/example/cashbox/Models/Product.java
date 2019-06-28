@@ -5,11 +5,15 @@ public class Product {
     private int id;
     private String name;
     private double price;
+    private int count;
+    private String article;
 
-    public Product(int id, String name, double price) {
+    public Product(int id, String name, double price, int count, String article) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.count = count;
+        this.article = article;
     }
 
     public int getId() {
@@ -36,4 +40,19 @@ public class Product {
         this.price = price;
     }
 
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public String getArticle() {
+        return article;
+    }
+
+    public void setArticle(String article) {
+        this.article = article;
+    }
 }

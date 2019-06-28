@@ -42,8 +42,8 @@ public class PaymentListAdapter extends RecyclerView.Adapter<PaymentListAdapter.
 
     @Override
     public void onBindViewHolder(PaymentListViewHolder holder, int position) {
-        final PaymentListPresenter presenter=new PaymentListPresenter(holder);
         final Product product = mpaymentList.get(position);
+        final PaymentListPresenter presenter=new PaymentListPresenter(holder, product);
         ((TextView)holder.view.findViewById(R.id.editTextName)).setText(product.getName());
         (holder.view.findViewById(R.id.editTextName)).setEnabled(false);
         ((TextView)holder.view.findViewById(R.id.editTextPrice)).setText(product.getPrice()+"");

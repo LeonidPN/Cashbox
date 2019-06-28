@@ -1,12 +1,12 @@
 package com.example.cashbox.Views;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cashbox.Presenters.PaymentPresenter;
 import com.example.cashbox.R;
@@ -16,6 +16,7 @@ public class PaymentActivity extends AppCompatActivity {
     private Button buttonPay;
     private Button buttonAdd;
     private RecyclerView recyclerView;
+
     private PaymentPresenter presenter;
 
     @Override
@@ -24,6 +25,7 @@ public class PaymentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_payment);
 
         presenter = new PaymentPresenter(this);
+        presenter.initialize();
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
