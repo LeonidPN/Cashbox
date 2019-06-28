@@ -1,11 +1,11 @@
 package com.example.cashbox.Models;
 
-public class ProductTable {
+public class CheckTable {
 
-    public static final String TABLE = "products";
+    public static final String TABLE = "checkTable";
 
     public static class COLUMN {
-        public static final String ID = "_id";
+        public static final String ID = "id";
         public static final String NAME = "name";
         public static final String PRICE = "price";
         public static final String COUNT = "count";
@@ -20,5 +20,4 @@ public class ProductTable {
                             + "%s text,"
                             + "%s text" + ");",
                     TABLE, COLUMN.ID, COLUMN.NAME, COLUMN.PRICE, COLUMN.COUNT, COLUMN.ARTICLE);
-
 }

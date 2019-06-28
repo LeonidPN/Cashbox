@@ -1,6 +1,6 @@
 package com.example.cashbox.Models;
 
-public class Product {
+public class Check {
 
     private int id;
     private String name;
@@ -8,7 +8,9 @@ public class Product {
     private String count;
     private String article;
 
-    public Product(int id, String name, String price, String count, String article) {
+    public Check() {}
+
+    public Check(int id, String name, String price, String count, String article) {
         this.id = id;
         this.name = name;
         this.price = price;

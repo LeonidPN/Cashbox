@@ -1,6 +1,8 @@
 package com.example.cashbox.Presenters;
 
+import android.content.ContentValues;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -9,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cashbox.ExceptionCallback;
 import com.example.cashbox.FiscalCoreServiceConnection;
 import com.example.cashbox.IToast;
-import com.example.cashbox.Models.Product;
+import com.example.cashbox.Models.Check;
+import com.example.cashbox.Models.CheckTable;
+import com.example.cashbox.Models.DbHelper;
 import com.example.cashbox.R;
 import com.example.cashbox.Views.PaymentActivity;
 import com.example.cashbox.Views.PaymentListAdapter;
@@ -21,12 +25,12 @@ import java.util.List;
 public class PaymentPresenter implements IToast {
 
     private PaymentActivity view;
-    private List<Product> products;
+    private DbHelper dbHelper;
 
     private static final String LANG_DEFAULT = "Ru-ru";
     private static final String ENVIRONMENT = "";
     private static final String TAG = "PaymentActivity";
-    private static final int RECTYPE_UNFISCAL = 9;
+    private static final int RECTYPE = 1;
     private static final int PAY_TYPE_CASH = 0;
 
     private FiscalCoreServiceConnection _connection;
@@ -34,32 +38,67 @@ public class PaymentPresenter implements IToast {
 
     public PaymentPresenter(PaymentActivity view) {
         this.view = view;
-        products = new ArrayList<>();
+        dbHelper = new DbHelper(view);
     }
 
     public void initialize() {
         _connection = new FiscalCoreServiceConnection(view);
         _connection.Initialize(LANG_DEFAULT, ENVIRONMENT, this);
-        try {
-            IFiscalCore core = getCore();
-            core.OpenRec(RECTYPE_UNFISCAL, _callback);
-            _callback.Complete();
-        } catch (Exception e) {
-            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void add() {
-        products.add(new Product(1, "1", 100, 1, ""));
-        ((RecyclerView) view.findViewById(R.id.recyclerView)).setAdapter(new PaymentListAdapter(products));
+        try {
+            ContentValues cv = new ContentValues(4);
+            cv.put(CheckTable.COLUMN.NAME, "1");
+            cv.put(CheckTable.COLUMN.PRICE, "100");
+            cv.put(CheckTable.COLUMN.COUNT, "1");
+            cv.put(CheckTable.COLUMN.ARTICLE, "");
+            dbHelper.getWritableDatabase().insert(CheckTable.TABLE, null, cv);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
+        List<Check> checkList = new ArrayList<>();
+        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
+        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
+        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
+        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
+        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
+        while (c.moveToNext()) {
+            checkList.add(new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
+                    c.getString(countColIndex), c.getString(articleColIndex)));
+        }
+        c.close();
+        ((RecyclerView) view.findViewById(R.id.recyclerView)).setAdapter(new PaymentListAdapter(checkList));
     }
 
     public void pay() {
         try {
             IFiscalCore core = getCore();
-            for (int i = 0; i < products.size(); i++) {
-                core.PrintRecItem(products.get(i).getCount() + "", products.get(i).getPrice() + "",
-                        products.get(i).getName(), products.get(i).getArticle(), _callback);
+            core.SetTaxationUsing(1,_callback);
+            _callback.Complete();
+            core.OpenRec(RECTYPE, _callback);
+            _callback.Complete();
+        } catch (Exception e) {
+            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
+        List<Check> checkList = new ArrayList<>();
+        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
+        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
+        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
+        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
+        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
+        while (c.moveToNext()) {
+            checkList.add(new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
+                    c.getString(countColIndex), c.getString(articleColIndex)));
+        }
+        c.close();
+        try {
+            IFiscalCore core = getCore();
+            for (int i = 0; i < checkList.size(); i++) {
+                core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
+                        checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
                 _callback.Complete();
             }
             core.PrintRecTotal(_callback);
@@ -73,14 +112,47 @@ public class PaymentPresenter implements IToast {
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+        dbHelper.getWritableDatabase().delete(CheckTable.TABLE,null,null);
+        view.finish();
+    }
+
+    public List<Check> getCheckList() {
+        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
+        List<Check> checkList = new ArrayList<>();
+        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
+        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
+        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
+        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
+        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
+        while (c.moveToNext()) {
+            checkList.add(new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
+                    c.getString(countColIndex), c.getString(articleColIndex)));
+        }
+        c.close();
+        return checkList;
+    }
+
+    public void cancel(){
+        dbHelper.getWritableDatabase().delete(CheckTable.TABLE,null,null);
+        try
+        {
+            IFiscalCore core = getCore();
+            core.RecVoid(_callback);
+            _callback.Complete();
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        view.finish();
     }
 
     public void payBack() {
 
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public void destroy() {
+        dbHelper.close();
     }
 
     @Override

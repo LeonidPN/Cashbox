@@ -15,6 +15,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private Button buttonPay;
     private Button buttonAdd;
+    private Button buttonCancel;
     private RecyclerView recyclerView;
 
     private PaymentPresenter presenter;
@@ -29,7 +30,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new PaymentListAdapter(presenter.getProducts()));
+        recyclerView.setAdapter(new PaymentListAdapter(presenter.getCheckList()));
 
         boolean isPayBack = getIntent().getBooleanExtra("IS_PAY_BACK", false);
         buttonPay = (Button) findViewById(R.id.buttonPay);
@@ -59,5 +60,19 @@ public class PaymentActivity extends AppCompatActivity {
                 presenter.add();
             }
         });
+        buttonCancel = (Button) findViewById(R.id.buttonCancel);
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                presenter.cancel();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        presenter.destroy();
     }
 }

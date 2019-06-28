@@ -91,4 +91,8 @@ public class MainPresenter implements IToast {
         return core;
     }
 
+    public void destroy(){
+
+    }
+
 }
