@@ -95,4 +95,12 @@ public class MainPresenter implements IToast {
 
     }
 
+    public void pause(){
+        _connection.Uninitialize();
+    }
+
+    public void resume(){
+        _connection.Initialize(LANG_DEFAULT, ENVIRONMENT, this);
+    }
+
 }
