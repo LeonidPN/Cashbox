@@ -24,18 +24,7 @@ public class PaymentListPresenter {
     }
 
     public void plus() {
-        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
-        Check check = new Check();
-        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
-        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
-        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
-        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
-        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
-        if (c.moveToPosition(position)) {
-            check = new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
-                    c.getString(countColIndex), c.getString(articleColIndex));
-        }
-        c.close();
+        Check check = getElement(position);
         View v = holder.itemView;
         int count = Integer.parseInt(check.getCount());
         if (count < 1000000) {
@@ -51,18 +40,7 @@ public class PaymentListPresenter {
     }
 
     public void minus() {
-        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
-        Check check = new Check();
-        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
-        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
-        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
-        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
-        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
-        if (c.moveToPosition(position)) {
-            check = new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
-                    c.getString(countColIndex), c.getString(articleColIndex));
-        }
-        c.close();
+        Check check = getElement(position);
         View v = holder.itemView;
         int count = Integer.parseInt(check.getCount());
         if (count > 1) {
@@ -75,6 +53,22 @@ public class PaymentListPresenter {
             cv.put(CheckTable.COLUMN.ARTICLE, check.getArticle());
             dbHelper.getWritableDatabase().update(CheckTable.TABLE, cv, CheckTable.COLUMN.ID + "=" + check.getId(), null);
         }
+    }
+
+    private Check getElement(int position){
+        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
+        Check check = new Check();
+        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
+        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
+        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
+        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
+        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
+        if (c.moveToPosition(position)) {
+            check = new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
+                    c.getString(countColIndex), c.getString(articleColIndex));
+        }
+        c.close();
+        return  check;
     }
 
 }

@@ -76,6 +76,9 @@ public class PaymentPresenter implements IToast {
         try {
             IFiscalCore core = getCore();
             for (int i = 0; i < checkList.size(); i++) {
+                core.SetItemTaxes(5, _callback);
+                core.SetShowTaxes(true,_callback);
+                _callback.Complete();
                 core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
                         checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
                 _callback.Complete();
@@ -128,6 +131,9 @@ public class PaymentPresenter implements IToast {
         try {
             IFiscalCore core = getCore();
             for (int i = 0; i < checkList.size(); i++) {
+                core.SetItemTaxes(5, _callback);
+                core.SetShowTaxes(true,_callback);
+                _callback.Complete();
                 core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
                         checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
                 _callback.Complete();

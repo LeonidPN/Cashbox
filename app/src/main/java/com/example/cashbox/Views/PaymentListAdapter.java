@@ -46,9 +46,9 @@ public class PaymentListAdapter extends RecyclerView.Adapter<PaymentListAdapter.
         final PaymentListPresenter presenter=new PaymentListPresenter(holder, position);
         ((TextView)holder.view.findViewById(R.id.editTextName)).setText(check.getName());
         (holder.view.findViewById(R.id.editTextName)).setEnabled(false);
-        ((TextView)holder.view.findViewById(R.id.editTextPrice)).setText(check.getPrice()+"");
+        ((TextView)holder.view.findViewById(R.id.editTextPrice)).setText(check.getPrice());
         (holder.view.findViewById(R.id.editTextPrice)).setEnabled(false);
-        ((TextView)holder.view.findViewById(R.id.editTextCount)).setText("1");
+        ((TextView)holder.view.findViewById(R.id.editTextCount)).setText(check.getCount());
         (holder.view.findViewById(R.id.editTextCount)).setEnabled(false);
         holder.view.findViewById(R.id.buttonPlus).setOnClickListener(new View.OnClickListener(){
             @Override
