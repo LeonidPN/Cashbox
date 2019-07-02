@@ -35,10 +35,6 @@ public class CorrectionPresenter implements IToast {
     private FiscalCoreServiceConnection _connection;
     ExceptionCallback _callback = new ExceptionCallback();
 
-    private enum operations {
-        Приход, Возврат
-    }
-
     public CorrectionPresenter(CorrectionActivity view) {
         this.view = view;
         dbHelper = new DbHelper(view);
@@ -48,9 +44,6 @@ public class CorrectionPresenter implements IToast {
         _connection = new FiscalCoreServiceConnection(view);
         _connection.Initialize(LANG_DEFAULT, ENVIRONMENT, this);
         setInitialDate();
-        ((Spinner) view.findViewById(R.id.spinnerTypeOperation)).setAdapter(
-                new ArrayAdapter(view, android.R.layout.simple_spinner_item, operations.values())
-        );
     }
 
     public void correction() {
@@ -62,28 +55,23 @@ public class CorrectionPresenter implements IToast {
             _callback.Complete();
             String docName = ((EditText) view.findViewById(R.id.editTextMainCorrection)).getText().toString();
             String docNum = ((EditText) view.findViewById(R.id.editTextNumDoc)).getText().toString();
-            String docDate = "2017-02-28T19:12:03.000Z";
-            int operationType = 9;
-            if (((Spinner) view.findViewById(R.id.spinnerTypeOperation)).getSelectedItem().toString()
-                    .equals(operations.values()[0])) {
-                operationType = 1;
-            }
-            if (((Spinner) view.findViewById(R.id.spinnerTypeOperation)).getSelectedItem().toString()
-                    .equals(operations.values()[1])) {
-                operationType = 2;
-            }
+            String docDate = android.text.format.DateFormat.format("yyyy-MM-dd", date).toString();
+            int operationType = 1;
             String cash = ((EditText) view.findViewById(R.id.editTextSum)).getText().toString();
             String emoney = "0";
             String advance = "0";
             String credit = "0";
             String other = "0";
-            core.FNMakeCorrectionRec(operationType, cash, emoney, advance, credit, other, 1, 0, docName,
+            core.FNMakeCorrectionRec(operationType, cash, emoney, advance, credit, other, 5, 0, docName,
                     docDate, docNum, _callback);
             _callback.Complete();
             core.CloseRec(_callback);
             _callback.Complete();
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        finally {
+            view.finish();
         }
     }
 
