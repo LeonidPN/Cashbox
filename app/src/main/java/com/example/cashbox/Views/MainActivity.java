@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonCloseShift;
     private Button buttonPay;
     private Button buttonPayBack;
+    private Button buttonCheckCor;
     private MainPresenter presenter;
 
     @Override
@@ -39,6 +40,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 presenter.openShift();
+            }
+        });
+        buttonCheckCor = (Button) findViewById(R.id.buttonCheckCor);
+        buttonCheckCor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.openView(CorrectionActivity.class, false);
             }
         });
         buttonPay=(Button)findViewById(R.id.buttonPay);
