@@ -1,8 +1,10 @@
-package com.example.cashbox;
+package com.example.cashbox.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.cashbox.R;
 
 public class CorrectionActivity extends AppCompatActivity {
 
