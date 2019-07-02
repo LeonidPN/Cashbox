@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.cashbox.Presenters.CorrectionPresenter;
+import com.example.cashbox.Presenters.PaymentPresenter;
 import com.example.cashbox.R;
 
 import java.util.Calendar;
@@ -30,6 +31,8 @@ public class CorrectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_correction);
+        presenter = new CorrectionPresenter(this);
+        presenter.initialize();
         textDate=(TextView)findViewById(R.id.textDate);
         setInitialDate();
         buttonChooseDate = (Button) findViewById(R.id.buttonChooseDate);
@@ -37,6 +40,13 @@ public class CorrectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setDate(v);
+            }
+        });
+        buttonRes = (Button) findViewById(R.id.buttonRes);
+        buttonRes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                presenter.correction();
             }
         });
     }
@@ -66,4 +76,10 @@ public class CorrectionActivity extends AppCompatActivity {
             setInitialDate();
         }
     };
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        presenter.destroy();
+    }
 }
