@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +35,7 @@ public class PaymentPresenter implements IToast {
     private static final int RECTYPE_PAY = 1;
     private static final int RECTYPE_PAYBACK = 3;
     private static final int PAY_TYPE_CASH = 0;
+    private static final int PAY_TYPE_ELECTRON = 1;
 
     private FiscalCoreServiceConnection _connection;
     ExceptionCallback _callback = new ExceptionCallback();
@@ -45,6 +48,12 @@ public class PaymentPresenter implements IToast {
     public void initialize() {
         _connection = new FiscalCoreServiceConnection(view);
         _connection.Initialize(LANG_DEFAULT, ENVIRONMENT, this);
+        List<Check> checkList = getList();
+        int sum = 0;
+        for (int i = 0; i < checkList.size(); i++) {
+            sum += Integer.parseInt(checkList.get(i).getPrice()) * Integer.parseInt(checkList.get(i).getCount());
+        }
+        ((TextView) view.findViewById(R.id.textViewSum)).setText(sum + "");
     }
 
     public void add() {
@@ -59,59 +68,70 @@ public class PaymentPresenter implements IToast {
             System.out.println(ex.getMessage());
         }
         List<Check> checkList = getList();
+        int sum = 0;
+        for (int i = 0; i < checkList.size(); i++) {
+            sum += Integer.parseInt(checkList.get(i).getPrice()) * Integer.parseInt(checkList.get(i).getCount());
+        }
         ((RecyclerView) view.findViewById(R.id.recyclerView)).setAdapter(new PaymentListAdapter(checkList));
+        ((TextView) view.findViewById(R.id.textViewSum)).setText(sum + "");
     }
 
     public void pay() {
         try {
-            IFiscalCore core = getCore();
-            core.SetTaxationUsing(1,_callback);
-            _callback.Complete();
-            core.OpenRec(RECTYPE_PAY, _callback);
-            _callback.Complete();
-        } catch (Exception e) {
-            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        List<Check> checkList = getList();
-        try {
-            IFiscalCore core = getCore();
-            for (int i = 0; i < checkList.size(); i++) {
-                core.SetItemTaxes(5, _callback);
-                core.SetShowTaxes(true,_callback);
+            int paySum = 0;
+            String sumCash = ((EditText) view.findViewById(R.id.editTextSumCash)).getText().toString();
+            String sumElectron = ((EditText) view.findViewById(R.id.editTextSumElectron)).getText().toString();
+            int cash = sumCash.equals(null) || sumCash.equals("") ? 0 : Integer.parseInt(sumCash);
+            int electron = sumElectron.equals(null) || sumElectron.equals("") ? 0 : Integer.parseInt(sumElectron);
+            paySum = cash + electron;
+            if (Integer.parseInt(((TextView) view.findViewById(R.id.textViewSum)).getText().toString()) <= paySum) {
+                IFiscalCore core = getCore();
+                core.SetTaxationUsing(1, _callback);
                 _callback.Complete();
-                core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
-                        checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
+                core.OpenRec(RECTYPE_PAY, _callback);
                 _callback.Complete();
+                List<Check> checkList = getList();
+                for (int i = 0; i < checkList.size(); i++) {
+                    core.SetItemTaxes(5, _callback);
+                    core.SetShowTaxes(true, _callback);
+                    _callback.Complete();
+                    core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
+                            checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
+                    _callback.Complete();
+                }
+                core.PrintRecTotal(_callback);
+                _callback.Complete();
+                core.PrintRecItemPay(PAY_TYPE_CASH, cash + "", view.getString(R.string.cash), _callback);
+                _callback.Complete();
+                core.PrintRecItemPay(PAY_TYPE_ELECTRON, electron + "", view.getString(R.string.electron), _callback);
+                _callback.Complete();
+                int total = Integer.parseInt(((TextView) view.findViewById(R.id.textViewSum)).getText().toString());
+                _callback.Complete();
+                core.PrintRecItemPay(PAY_TYPE_CASH, (total - paySum) + "", "Сдача", _callback);
+                _callback.Complete();
+                core.CloseRec(_callback);
+                _callback.Complete();
+                dbHelper.getWritableDatabase().delete(CheckTable.TABLE, null, null);
+                view.finish();
+            } else {
+                Toast.makeText(view.getApplicationContext(), "Недостаточно средств", Toast.LENGTH_SHORT).show();
             }
-            core.PrintRecTotal(_callback);
-            _callback.Complete();
-            String total = core.GetRecTotal(_callback);
-            _callback.Complete();
-            core.PrintRecItemPay(PAY_TYPE_CASH, total, view.getString(R.string.cash), _callback);
-            _callback.Complete();
-            core.CloseRec(_callback);
-            _callback.Complete();
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        dbHelper.getWritableDatabase().delete(CheckTable.TABLE,null,null);
-        view.finish();
     }
 
     public List<Check> getCheckList() {
         return getList();
     }
 
-    public void cancel(){
-        dbHelper.getWritableDatabase().delete(CheckTable.TABLE,null,null);
-        try
-        {
+    public void cancel() {
+        dbHelper.getWritableDatabase().delete(CheckTable.TABLE, null, null);
+        try {
             IFiscalCore core = getCore();
             core.RecVoid(_callback);
             _callback.Complete();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         view.finish();
@@ -120,19 +140,14 @@ public class PaymentPresenter implements IToast {
     public void payBack() {
         try {
             IFiscalCore core = getCore();
-            core.SetTaxationUsing(1,_callback);
+            core.SetTaxationUsing(1, _callback);
             _callback.Complete();
             core.OpenRec(RECTYPE_PAYBACK, _callback);
             _callback.Complete();
-        } catch (Exception e) {
-            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        List<Check> checkList = getList();
-        try {
-            IFiscalCore core = getCore();
+            List<Check> checkList = getList();
             for (int i = 0; i < checkList.size(); i++) {
                 core.SetItemTaxes(5, _callback);
-                core.SetShowTaxes(true,_callback);
+                core.SetShowTaxes(true, _callback);
                 _callback.Complete();
                 core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
                         checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
@@ -149,7 +164,7 @@ public class PaymentPresenter implements IToast {
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        dbHelper.getWritableDatabase().delete(CheckTable.TABLE,null,null);
+        dbHelper.getWritableDatabase().delete(CheckTable.TABLE, null, null);
         view.finish();
     }
 

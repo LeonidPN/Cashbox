@@ -35,6 +35,10 @@ public class CorrectionPresenter implements IToast {
     private FiscalCoreServiceConnection _connection;
     ExceptionCallback _callback = new ExceptionCallback();
 
+    private enum operations {
+        Приход, Расход
+    }
+
     public CorrectionPresenter(CorrectionActivity view) {
         this.view = view;
         dbHelper = new DbHelper(view);
@@ -44,6 +48,8 @@ public class CorrectionPresenter implements IToast {
         _connection = new FiscalCoreServiceConnection(view);
         _connection.Initialize(LANG_DEFAULT, ENVIRONMENT, this);
         setInitialDate();
+        ((Spinner) view.findViewById(R.id.spinnerTypeOperation))
+                .setAdapter(new ArrayAdapter(view, android.R.layout.simple_spinner_item, operations.values()));
     }
 
     public void correction() {
@@ -57,8 +63,13 @@ public class CorrectionPresenter implements IToast {
             String docNum = ((EditText) view.findViewById(R.id.editTextNumDoc)).getText().toString();
             String docDate = android.text.format.DateFormat.format("yyyy-MM-dd", date).toString();
             int operationType = 1;
-            String cash = ((EditText) view.findViewById(R.id.editTextSum)).getText().toString();
-            String emoney = "0";
+            if (((Spinner) view.findViewById(R.id.spinnerTypeOperation)).getSelectedItem().equals(operations.values()[1])) {
+                operationType = 3;
+            }
+            String cash = ((EditText) view.findViewById(R.id.editTextSumCash)).getText() != null ?
+                    ((EditText) view.findViewById(R.id.editTextSumCash)).getText().toString() : "0";
+            String emoney = ((EditText) view.findViewById(R.id.editTextSumElectron)).getText() != null ?
+                    ((EditText) view.findViewById(R.id.editTextSumElectron)).getText().toString() : "0";
             String advance = "0";
             String credit = "0";
             String other = "0";
@@ -69,8 +80,7 @@ public class CorrectionPresenter implements IToast {
             _callback.Complete();
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        finally {
+        } finally {
             view.finish();
         }
     }

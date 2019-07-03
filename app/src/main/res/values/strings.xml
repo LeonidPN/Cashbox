@@ -4,4 +4,5 @@
     <string name="connected">Подключено</string>
     <string name="service_not_connected">Сервис не подключен</string>
     <string name="cash">Наличными</string>
+    <string name="electron">Безналичными</string>
 </resources>

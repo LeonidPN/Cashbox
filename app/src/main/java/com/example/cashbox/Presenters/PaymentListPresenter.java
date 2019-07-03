@@ -11,6 +11,9 @@ import com.example.cashbox.Models.DbHelper;
 import com.example.cashbox.R;
 import com.example.cashbox.Views.PaymentListAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PaymentListPresenter {
 
     private PaymentListAdapter.PaymentListViewHolder holder;
@@ -36,6 +39,12 @@ public class PaymentListPresenter {
             cv.put(CheckTable.COLUMN.COUNT, check.getCount());
             cv.put(CheckTable.COLUMN.ARTICLE, check.getArticle());
             dbHelper.getWritableDatabase().update(CheckTable.TABLE, cv, CheckTable.COLUMN.ID + "=" + check.getId(), null);
+            List<Check> checkList = getList();
+            int sum = 0;
+            for (int i = 0; i < checkList.size(); i++) {
+                sum += Integer.parseInt(checkList.get(i).getPrice()) * Integer.parseInt(checkList.get(i).getCount());
+            }
+            ((TextView) v.getRootView().findViewById(R.id.textViewSum)).setText(sum + "");
         }
     }
 
@@ -52,10 +61,16 @@ public class PaymentListPresenter {
             cv.put(CheckTable.COLUMN.COUNT, check.getCount());
             cv.put(CheckTable.COLUMN.ARTICLE, check.getArticle());
             dbHelper.getWritableDatabase().update(CheckTable.TABLE, cv, CheckTable.COLUMN.ID + "=" + check.getId(), null);
+            List<Check> checkList = getList();
+            int sum = 0;
+            for (int i = 0; i < checkList.size(); i++) {
+                sum += Integer.parseInt(checkList.get(i).getPrice()) * Integer.parseInt(checkList.get(i).getCount());
+            }
+            ((TextView) v.getRootView().findViewById(R.id.textViewSum)).setText(sum + "");
         }
     }
 
-    private Check getElement(int position){
+    private Check getElement(int position) {
         Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
         Check check = new Check();
         int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
@@ -68,7 +83,23 @@ public class PaymentListPresenter {
                     c.getString(countColIndex), c.getString(articleColIndex));
         }
         c.close();
-        return  check;
+        return check;
+    }
+
+    private List<Check> getList() {
+        Cursor c = dbHelper.getReadableDatabase().query(CheckTable.TABLE, null, null, null, null, null, null);
+        List<Check> checkList = new ArrayList<>();
+        int idColIndex = c.getColumnIndex(CheckTable.COLUMN.ID);
+        int nameColIndex = c.getColumnIndex(CheckTable.COLUMN.NAME);
+        int priceColIndex = c.getColumnIndex(CheckTable.COLUMN.PRICE);
+        int countColIndex = c.getColumnIndex(CheckTable.COLUMN.COUNT);
+        int articleColIndex = c.getColumnIndex(CheckTable.COLUMN.ARTICLE);
+        while (c.moveToNext()) {
+            checkList.add(new Check(c.getInt(idColIndex), c.getString(nameColIndex), c.getString(priceColIndex),
+                    c.getString(countColIndex), c.getString(articleColIndex)));
+        }
+        c.close();
+        return checkList;
     }
 
 }
