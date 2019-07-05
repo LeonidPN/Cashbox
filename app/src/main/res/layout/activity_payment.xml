@@ -141,7 +141,7 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         <Button
-            android:id="@+id/buttonPay"
+            android:id="@+id/buttonPayBack"
             android:layout_width="173dp"
             android:layout_height="41dp"
             android:layout_marginTop="1dp"
@@ -160,7 +160,7 @@
             android:layout_marginLeft="19dp"
             android:layout_marginTop="1dp"
             android:text="Отмена"
-            app:layout_constraintStart_toEndOf="@+id/buttonPay"
+            app:layout_constraintStart_toEndOf="@+id/buttonPayBack"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,51 +1,42 @@
 package com.example.cashbox.Views;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cashbox.Presenters.PaymentPresenter;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+import com.example.cashbox.Presenters.PayBackPresenter;
 import com.example.cashbox.R;
 
-public class PaymentActivity extends AppCompatActivity {
+public class PayBackActivity extends AppCompatActivity {
 
     private Button buttonPay;
-    private Button buttonAdd;
     private Button buttonCancel;
     private RecyclerView recyclerView;
 
-    private PaymentPresenter presenter;
+    private PayBackPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_payment);
+        setContentView(R.layout.activity_pay_back);
 
-        presenter = new PaymentPresenter(this);
+        presenter = new PayBackPresenter(this);
         presenter.initialize();
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new PaymentListAdapter(presenter.getCheckList()));
+        recyclerView.setAdapter(new PayBackListAdapter(presenter.getCheckPayBackList(), presenter));
 
         buttonPay = (Button) findViewById(R.id.buttonPayBack);
         buttonPay.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-                    presenter.pay();
-                }
-            });
-        buttonAdd = (Button) findViewById(R.id.buttonAdd);
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                presenter.add();
+                presenter.payBack();
             }
         });
         buttonCancel = (Button) findViewById(R.id.buttonCancel);
@@ -59,7 +50,7 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         presenter.destroy();
     }

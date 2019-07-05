@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         buttonPayBack.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                presenter.openView(PaymentActivity.class, true);
+                presenter.openView(PayBackActivity.class, true);
             }
         });
     }

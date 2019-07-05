@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper {
 
-    public static final String NAME = "Cashbox";
+    public static final String NAME = "CashboxDatabase";
     public static final int VERSION = 1;
 
     public DbHelper(Context context) {
@@ -16,6 +16,7 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CheckTable.CREATE_SCRIPT);
+        sqLiteDatabase.execSQL(CheckPayBackTable.CREATE_SCRIPT);
     }
 
     @Override

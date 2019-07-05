@@ -3,6 +3,7 @@ package com.example.cashbox.Presenters;
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,6 +15,8 @@ import com.example.cashbox.ExceptionCallback;
 import com.example.cashbox.FiscalCoreServiceConnection;
 import com.example.cashbox.IToast;
 import com.example.cashbox.Models.Check;
+import com.example.cashbox.Models.CheckPayBack;
+import com.example.cashbox.Models.CheckPayBackTable;
 import com.example.cashbox.Models.CheckTable;
 import com.example.cashbox.Models.DbHelper;
 import com.example.cashbox.R;
@@ -33,7 +36,6 @@ public class PaymentPresenter implements IToast {
     private static final String ENVIRONMENT = "";
     private static final String TAG = "PaymentActivity";
     private static final int RECTYPE_PAY = 1;
-    private static final int RECTYPE_PAYBACK = 3;
     private static final int PAY_TYPE_CASH = 0;
     private static final int PAY_TYPE_ELECTRON = 1;
 
@@ -111,6 +113,13 @@ public class PaymentPresenter implements IToast {
                 _callback.Complete();
                 core.CloseRec(_callback);
                 _callback.Complete();
+                ContentValues cv = new ContentValues(3);
+                cv.put(CheckPayBackTable.COLUMN.SUM, ((TextView) view.findViewById(R.id.textViewSum)).getText().toString());
+                cv.put(CheckPayBackTable.COLUMN.NUMBER, core.FNGetLastFDNum(_callback));
+                _callback.Complete();
+                String mytime = (DateFormat.format("dd-MM-yy hh:mm", new java.util.Date()).toString());
+                cv.put(CheckPayBackTable.COLUMN.DATE, mytime);
+                dbHelper.getWritableDatabase().insert(CheckPayBackTable.TABLE, null, cv);
                 dbHelper.getWritableDatabase().delete(CheckTable.TABLE, null, null);
                 view.finish();
             } else {
@@ -134,37 +143,6 @@ public class PaymentPresenter implements IToast {
         } catch (Exception e) {
             Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        view.finish();
-    }
-
-    public void payBack() {
-        try {
-            IFiscalCore core = getCore();
-            core.SetTaxationUsing(1, _callback);
-            _callback.Complete();
-            core.OpenRec(RECTYPE_PAYBACK, _callback);
-            _callback.Complete();
-            List<Check> checkList = getList();
-            for (int i = 0; i < checkList.size(); i++) {
-                core.SetItemTaxes(5, _callback);
-                core.SetShowTaxes(true, _callback);
-                _callback.Complete();
-                core.PrintRecItem(checkList.get(i).getCount(), checkList.get(i).getPrice(),
-                        checkList.get(i).getName(), checkList.get(i).getArticle(), _callback);
-                _callback.Complete();
-            }
-            core.PrintRecTotal(_callback);
-            _callback.Complete();
-            String total = core.GetRecTotal(_callback);
-            _callback.Complete();
-            core.PrintRecItemPay(PAY_TYPE_CASH, total, view.getString(R.string.cash), _callback);
-            _callback.Complete();
-            core.CloseRec(_callback);
-            _callback.Complete();
-        } catch (Exception e) {
-            Toast.makeText(view.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        dbHelper.getWritableDatabase().delete(CheckTable.TABLE, null, null);
         view.finish();
     }
 
